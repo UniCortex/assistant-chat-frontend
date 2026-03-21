@@ -1,0 +1,12 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BASE_PATH: ${BASE_PATH:-/}
+    environment:
+      PORT: "5173"
+    ports:
+      - "${HOST_PORT:-5173}:5173"
+    restart: unless-stopped
