@@ -1,4 +1,5 @@
 import { Message } from "@/types";
+import { formatAssistantReply } from "@/lib/chat/formatAssistantReply";
 
 interface MessageBubbleProps {
   message: Message;
@@ -22,7 +23,13 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       )}
 
       <div className={`message-bubble ${isUser ? "message-bubble--user" : "message-bubble--bot"}`}>
-        <p className="message-text">{message.text}</p>
+        {isUser ? (
+          <p className="message-text">{message.text}</p>
+        ) : (
+          <div className="message-text message-text--bot">
+            {formatAssistantReply(message.text) ?? message.text}
+          </div>
+        )}
         <span className="message-time">{formatTime(message.timestamp)}</span>
       </div>
     </div>

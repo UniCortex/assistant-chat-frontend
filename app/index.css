@@ -494,6 +494,43 @@ html, body, #root {
   word-break: break-word;
 }
 
+.message-text--bot {
+  display: block;
+}
+
+.message-text-bot-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65em;
+}
+
+.bot-message-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+}
+
+.bot-message-para {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.bot-message-list {
+  margin: 0.15em 0 0.15em 0;
+  padding-left: 1.25em;
+  list-style-type: disc;
+}
+
+.bot-message-list li {
+  margin: 0.2em 0;
+  padding-left: 0.15em;
+}
+
+.bot-message-list li::marker {
+  color: var(--color-text-muted, #6b7280);
+}
+
 .message-time {
   display: block;
   font-size: 10.5px;
