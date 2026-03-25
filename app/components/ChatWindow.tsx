@@ -8,7 +8,8 @@ interface ChatWindowProps {
   isOpen: boolean;
   messages: Message[];
   botState: BotState;
-  isBotTyping: boolean;
+  awaitingResponse: boolean;
+  showTypingIndicator: boolean;
   onClose: () => void;
   onSend: (text: string) => void;
   fallbackImageSrc?: string;
@@ -18,7 +19,8 @@ export default function ChatWindow({
   isOpen,
   messages,
   botState,
-  isBotTyping,
+  awaitingResponse,
+  showTypingIndicator,
   onClose,
   onSend,
   fallbackImageSrc,
@@ -48,14 +50,14 @@ export default function ChatWindow({
       >
         <ChatHeader
           botState={botState}
-          isBotTyping={isBotTyping}
+          isBotTyping={awaitingResponse}
           onClose={onClose}
           fallbackImageSrc={fallbackImageSrc}
         />
 
-        <MessageList messages={messages} isBotTyping={isBotTyping} />
+        <MessageList messages={messages} isBotTyping={showTypingIndicator} />
 
-        <ChatInput onSend={onSend} disabled={isBotTyping} />
+        <ChatInput onSend={onSend} disabled={awaitingResponse} />
       </div>
     </div>
   );
