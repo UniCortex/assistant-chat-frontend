@@ -6,6 +6,5 @@ dist
 .gitignore
 .cursor
 *.md
-.env
 .env.*
 !.env.example

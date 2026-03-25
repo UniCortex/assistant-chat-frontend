@@ -3,10 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        BASE_PATH: ${BASE_PATH:-/}
-    environment:
-      PORT: "5173"
+    env_file: .env
     ports:
-      - "${HOST_PORT:-5173}:5173"
+      - "${HOST_PORT}:${PORT}"
     restart: unless-stopped
