@@ -61,7 +61,7 @@ export default function RaccoonStateDisplay({
       {videoAvailable !== true && (
         <img
           src={fallbackImageSrc}
-          alt="Енот-помощник ЯрГУ"
+          alt="Енот-помощник матфака ЯрГУ"
           className="raccoon-fallback"
           data-state={botState}
         />

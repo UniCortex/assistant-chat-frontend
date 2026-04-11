@@ -45,7 +45,7 @@ export default function ChatWindow({
         className={`chat-window ${isOpen ? "chat-window--open" : ""}`}
         ref={containerRef}
         role="dialog"
-        aria-label="Чат с помощником ЯрГУ"
+        aria-label="Чат с помощником матфака ЯрГУ"
         aria-modal="true"
       >
         <ChatHeader

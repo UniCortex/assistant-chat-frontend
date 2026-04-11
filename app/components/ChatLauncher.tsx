@@ -29,9 +29,9 @@ export default function ChatLauncher({
         </div>
 
         <div className="launcher-text">
-          <h1 className="launcher-title">Чат-бот&nbsp;ЯрГУ</h1>
+          <h1 className="launcher-title">Чат-бот матфака&nbsp;ЯрГУ</h1>
           <p className="launcher-subtitle">
-            Задайте вопрос о поступлении, факультетах<br className="hidden sm:block" /> или жизни в университете
+            Задайте вопрос о поступлении, учёбе<br className="hidden sm:block" /> или жизни на математическом факультете
           </p>
         </div>
 

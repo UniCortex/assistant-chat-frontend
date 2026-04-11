@@ -15,7 +15,7 @@ export default function ChatHeader({
   fallbackImageSrc,
 }: ChatHeaderProps) {
   const statusText =
-    botState === "thinking" || isBotTyping ? "Думает..." : "Онлайн · Готов помочь";
+    botState === "thinking" || isBotTyping ? "Печатает..." : "Онлайн · Готов помочь";
 
   return (
     <div className="chat-header">
@@ -27,7 +27,7 @@ export default function ChatHeader({
           fallbackImageSrc={fallbackImageSrc}
         />
         <div className="chat-header-text">
-          <span className="chat-header-name">Помощник ЯрГУ</span>
+          <span className="chat-header-name">Помощник матфака ЯрГУ</span>
           <span className="chat-header-status" data-thinking={isBotTyping}>
             {statusText}
           </span>
