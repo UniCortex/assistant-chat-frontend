@@ -3,18 +3,24 @@ import { toast } from "sonner";
 import { Message, BotState } from "@/types";
 import { ensureChatSession } from "@/lib/session/chatSession";
 import { queueQuestion } from "@/lib/api/queueQuestion";
-import { streamAnswerTokens } from "@/lib/api/streamAnswerTokens";
+import { pollAnswer, PollAnswerResponse } from "@/lib/api/pollAnswer";
 import { isAbortError } from "@/lib/api/isAbortError";
 
 const WELCOME_TEXT =
-  "Привет! Я помощник ЯрГУ. Больше всего специализируюсь на матфаке и факультете ИВТ, но и по другим факультетам могу помочь. Буду рад помочь!";
+  "Привет! 👋 Я — енот-ассистент математического факультета ЯрГУ им. П.Г. Демидова.\n\n" +
+  "Знаю всё про матфак:\n" +
+  "— поступление, проходные баллы и экзамены\n" +
+  "— направления подготовки и специальности\n" +
+  "— учебный процесс, преподавателей и расписание\n" +
+  "— студенческую жизнь факультета\n\n" +
+  "⚠️ По другим факультетам я не специализируюсь — за такой информацией лучше зайти на https://www.uniyar.ac.ru\n\n" +
+  "Есть вопросы про матфак? Спрашивай — помогу! 🦝";
 
 export function useAssistantChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [botState, setBotState] = useState<BotState>("idle");
   const [awaitingResponse, setAwaitingResponse] = useState(false);
-  const [streamPrimed, setStreamPrimed] = useState(false);
 
   const streamAbortRef = useRef<AbortController | null>(null);
   const inFlightRef = useRef(false);
@@ -61,7 +67,6 @@ export function useAssistantChat() {
     setMessages((prev) => [...prev, userMessage]);
     setBotState("thinking");
     setAwaitingResponse(true);
-    setStreamPrimed(false);
 
     const controller = new AbortController();
     streamAbortRef.current = controller;
@@ -74,40 +79,24 @@ export function useAssistantChat() {
       );
 
       const botId = message_id;
-      let receivedToken = false;
 
-      for await (const token of streamAnswerTokens(sessionId, message_id, controller.signal)) {
-        if (!receivedToken) {
-          receivedToken = true;
-          setStreamPrimed(true);
+      let result: PollAnswerResponse | null = null;
+      while (result === null) {
+        result = await pollAnswer(sessionId, message_id, controller.signal);
+        if (result === null) {
+          await new Promise((res) => setTimeout(res, 1500));
         }
-        setMessages((prev) => {
-          const idx = prev.findIndex((m) => m.id === botId);
-          if (idx === -1) {
-            const botMessage: Message = {
-              id: botId,
-              role: "bot",
-              text: token,
-              timestamp: new Date(),
-            };
-            return [...prev, botMessage];
-          }
-          return prev.map((m) => (m.id === botId ? { ...m, text: m.text + token } : m));
-        });
       }
 
-      if (!receivedToken) {
-        setStreamPrimed(true);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: botId,
-            role: "bot",
-            text: "Ответ не получен. Попробуйте задать вопрос ещё раз.",
-            timestamp: new Date(),
-          },
-        ]);
-      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: botId,
+          role: "bot",
+          text: result.answer ?? "Ответ не получен. Попробуйте задать вопрос ещё раз.",
+          timestamp: new Date(),
+        },
+      ]);
 
       setBotState("eureka");
       setTimeout(() => {
@@ -124,14 +113,13 @@ export function useAssistantChat() {
     } finally {
       inFlightRef.current = false;
       setAwaitingResponse(false);
-      setStreamPrimed(false);
       if (streamAbortRef.current === controller) {
         streamAbortRef.current = null;
       }
     }
   }, []);
 
-  const showTypingIndicator = awaitingResponse && !streamPrimed;
+  const showTypingIndicator = awaitingResponse;
 
   return {
     isOpen,

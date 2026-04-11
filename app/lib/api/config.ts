@@ -11,5 +11,3 @@ export function getApiBaseUrl(): string {
 }
 
 export const QUEUE_ENDPOINT = "/api/v1/queuing/";
-
-export const STREAM_ENDPOINT = "/api/v1/queuing/stream";
