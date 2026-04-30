@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Message, BotState } from "@/types";
-import { ensureChatSession } from "@/lib/session/chatSession";
+import { ensureChatSession, loadChatHistory, saveChatHistory } from "@/lib/session/chatSession";
 import { queueQuestion } from "@/lib/api/queueQuestion";
 import { pollAnswer, PollAnswerResponse } from "@/lib/api/pollAnswer";
 import { isAbortError } from "@/lib/api/isAbortError";
@@ -32,10 +32,11 @@ export function useAssistantChat() {
   }, []);
 
   const openChat = useCallback(() => {
-    ensureChatSession();
+    const sessionId = ensureChatSession();
+    const restored = loadChatHistory(sessionId);
     setIsOpen(true);
-    setMessages((prev) => {
-      if (prev.length > 0) return prev;
+    setMessages(() => {
+      if (restored !== null && restored.length > 0) return restored;
       return [
         {
           id: "welcome",
@@ -120,6 +121,12 @@ export function useAssistantChat() {
   }, []);
 
   const showTypingIndicator = awaitingResponse;
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+    const sessionId = ensureChatSession();
+    saveChatHistory(sessionId, messages);
+  }, [messages]);
 
   return {
     isOpen,

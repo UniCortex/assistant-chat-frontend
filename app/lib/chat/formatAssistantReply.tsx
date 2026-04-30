@@ -8,25 +8,42 @@ export function normalizeAssistantPlaintext(text: string): string {
 
 function parseBlockLines(block: string): ReactNode {
   const lines = block.split("\n").map((l) => l.trimEnd());
+  const nonEmptyLines = lines.filter(Boolean);
 
-  const listLines = lines.filter((l) => /^[-*]\s+\S/.test(l.trim()));
-  const isListBlock = listLines.length > 0 && listLines.length === lines.filter(Boolean).length;
+  const unorderedListLines = nonEmptyLines.filter((l) => /^[-*]\s+\S/.test(l.trim()));
+  const isUnorderedListBlock =
+    unorderedListLines.length > 0 && unorderedListLines.length === nonEmptyLines.length;
+  const orderedListLines = nonEmptyLines.filter((l) => /^\d+\.\s+\S/.test(l.trim()));
+  const isOrderedListBlock =
+    orderedListLines.length > 0 && orderedListLines.length === nonEmptyLines.length;
 
-  if (isListBlock) {
+  if (isUnorderedListBlock) {
     return (
       <ul className="bot-message-list">
         {lines
           .filter(Boolean)
           .map((line, i) => (
-            <li key={i}>{line.trim().replace(/^\s*[-*]\s+/, "")}</li>
+            <li key={i}>{renderInlineFormatting(line.trim().replace(/^\s*[-*]\s+/, ""))}</li>
           ))}
       </ul>
     );
   }
 
+  if (isOrderedListBlock) {
+    return (
+      <ol className="bot-message-list">
+        {lines
+          .filter(Boolean)
+          .map((line, i) => (
+            <li key={i}>{renderInlineFormatting(line.trim().replace(/^\s*\d+\.\s+/, ""))}</li>
+          ))}
+      </ol>
+    );
+  }
+
   const rendered: ReactNode[] = [];
   lines.forEach((line, i) => {
-    rendered.push(<span key={`t-${i}`}>{line}</span>);
+    rendered.push(<span key={`t-${i}`}>{renderInlineFormatting(line)}</span>);
     if (i < lines.length - 1) {
       rendered.push(<br key={`br-${i}`} />);
     }
@@ -37,6 +54,17 @@ function parseBlockLines(block: string): ReactNode {
       {rendered}
     </p>
   );
+}
+
+function renderInlineFormatting(text: string): ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return <strong key={`b-${i}`}>{part.slice(2, -2)}</strong>;
+    }
+
+    return <span key={`t-${i}`}>{part}</span>;
+  });
 }
 
 export function formatAssistantReply(text: string): ReactNode {
