@@ -15,15 +15,14 @@ const QUICK_QUESTIONS = [
 
 export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [value, setValue] = useState("");
-  const [showQuick, setShowQuick] = useState(true);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const showQuick = !disabled;
 
   const handleSend = () => {
     const trimmed = value.trim();
     if (!trimmed || disabled) return;
     onSend(trimmed);
     setValue("");
-    setShowQuick(false);
     inputRef.current?.focus();
   };
 
@@ -35,7 +34,6 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   };
 
   const handleQuick = (question: string) => {
-    setShowQuick(false);
     onSend(question);
   };
 
