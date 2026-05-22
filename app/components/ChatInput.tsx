@@ -1,4 +1,4 @@
-import { useState, useRef, KeyboardEvent } from "react";
+import { useState, useRef, useLayoutEffect, KeyboardEvent } from "react";
 
 interface ChatInputProps {
   onSend: (text: string) => void;
@@ -17,6 +17,13 @@ export default function ChatInput({ onSend, disabled }: ChatInputProps) {
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const showQuick = !disabled;
+
+  useLayoutEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
 
   const handleSend = () => {
     const trimmed = value.trim();
